@@ -12,7 +12,7 @@ from depth_anything_v2.dpt import DepthAnythingV2
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Depth Anything V2')
     
-    parser.add_argument('--img-path', default='imagenet21k.txt' ,type=str)
+    parser.add_argument('--img-path', default='BDD100K.txt' ,type=str)
     parser.add_argument('--input-size', type=int, default=518)
     
     parser.add_argument('--encoder', type=str, default='vitl', choices=['vits', 'vitb', 'vitl', 'vitg'])
@@ -35,7 +35,7 @@ if __name__ == '__main__':
     if os.path.isfile(args.img_path):
         if args.img_path.endswith('txt'):
             with open(args.img_path, 'r') as f:
-                filenames = f.read().splitlines() 
+                filenames = f.read().splitlines()
         else:
             filenames = [args.img_path]
     else:
@@ -51,12 +51,12 @@ if __name__ == '__main__':
         
         depth = depth_anything.infer_image(raw_image, args.input_size) 
         
-        # 将深度图线性缩放到 uint16 的动态范围 [0, 65535]
-        depth_scaled = (depth - depth.min()) / (depth.max() - depth.min()) * 65535.0
-        depth_scaled = depth_scaled.astype(np.uint16)
+        # 将深度图线性缩放到 uint8 的动态范围 [0, 255]
+        depth_scaled = (depth - depth.min()) / (depth.max() - depth.min()) * 255.0
+        depth_scaled = depth_scaled.astype(np.uint8)
 
         save_name = os.path.splitext(os.path.basename(filename))[0] + '.png'
-        outdir =  os.path.join(os.path.dirname(os.path.dirname(filename)) ,'pseudo_label')
+        outdir =  os.path.join(os.path.dirname(os.path.dirname(filename)) ,'pseudo_label_uint8')
         save_path = os.path.join(outdir, save_name)
       
         cv2.imwrite(save_path, depth_scaled)
